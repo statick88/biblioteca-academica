@@ -1,6 +1,6 @@
 # Biblioteca Académica
 
-Aplicación académica de biblioteca, renderizada en servidor con PHP, para gestionar catálogo, usuarios de biblioteca, solicitudes, préstamos, devoluciones y acceso por roles. La identidad pública prevista es [`statick88/biblioteca-academica`](https://github.com/statick88/biblioteca-academica); esa URL es un destino de publicación planificado, no una afirmación de que el repositorio remoto ya exista.
+Aplicación académica de biblioteca, renderizada en servidor con PHP, para gestionar catálogo, usuarios de biblioteca, solicitudes, préstamos, devoluciones y acceso por roles. Repositorio público: [`statick88/biblioteca-academica`](https://github.com/statick88/biblioteca-academica).
 
 ## Alcance y funciones
 
@@ -58,7 +58,7 @@ Para una base con datos, no use esa ruta como si fuera una instalación vacía: 
 
 ## Estado de publicación y verificación
 
-El proyecto se documenta para publicación pública académica. No es una certificación de producción, versión liberada ni garantía de endurecimiento. La migración no se ejecutó sobre datos de aula reales. La evidencia disponible, las comprobaciones que no tuvieron dictamen independiente y sus límites aceptados están preservados en [docs/verification.md](docs/verification.md); no se sustituyen por una afirmación de cobertura o aprobación.
+El repositorio se publica como proyecto académico, sin despliegue de la aplicación. No es una certificación de producción, versión liberada ni garantía de endurecimiento. La migración no se ejecutó sobre datos de aula reales. La evidencia disponible, las comprobaciones que no tuvieron dictamen independiente y sus límites aceptados están preservados en [docs/verification.md](docs/verification.md); no se sustituyen por una afirmación de cobertura o aprobación.
 
 ## Participar y reportar riesgos
 

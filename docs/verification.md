@@ -32,6 +32,8 @@ The prepublication check found that the migration fixture originally validated o
 
 The original and corrected migration suite were also run sequentially on an owned disposable MySQL instance at the allowed target: both exited `0` with identical stdout/stderr. The other four integration suites, PHP/JS syntax, whitespace and standalone `docker-compose --env-file /dev/null config --quiet` checks passed after the correction. This later standalone Compose success does not change the historical plugin-command failure below. Secret scanning found no leaks; no coverage percentage or SonarQube approval was measured. No real database was used.
 
+The independent prepublication follow-up closed the fixture-guard and public-artifact privacy findings. A focused four-lens native review of the guard/test change was approved and acknowledged; this does not retroactively approve earlier application units. Its host/database test-coverage advisory was non-blocking and remains a follow-up, not a claim of exhaustive guard coverage.
+
 ## Browser runtime
 
 A new run explicitly authorized after a cookie-sharing harness failure completed with exit `0` for each synthetic role. `tests/browser_smoke.mjs` creates a separate incognito context for each role; creating a tab alone would reuse login cookies.
