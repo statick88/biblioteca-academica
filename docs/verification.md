@@ -26,6 +26,14 @@ The password above is a synthetic test-container credential, not an application 
 | HTTP | Allowlists, CSRF before mutation, authorization before invalid-form correction, safe errors/escaping, secret-free field retention, PRG, role journeys and registration |
 | Syntax | PHP lint across application/CLI/tests; Node syntax checks for UI JS and browser script; Git whitespace check |
 
+## Fixture guard correction before publication
+
+The prepublication check found that the migration fixture originally validated only host/database, not the port. It now requires exactly `127.0.0.1:32768/library_fixture` before connecting. `php tests/fixture_guard_test.php` first failed against the old helper (an unauthorized connection reached a synthetic TCP sentinel, never MySQL); after the correction it passes with exact exit/stdout/stderr assertions and zero connections for wrong or missing port and invalid host/database.
+
+The original and corrected migration suite were also run sequentially on an owned disposable MySQL instance at the allowed target: both exited `0` with identical stdout/stderr. The other four integration suites, PHP/JS syntax, whitespace and standalone `docker-compose --env-file /dev/null config --quiet` checks passed after the correction. This later standalone Compose success does not change the historical plugin-command failure below. Secret scanning found no leaks; no coverage percentage or SonarQube approval was measured. No real database was used.
+
+The independent prepublication follow-up closed the fixture-guard and public-artifact privacy findings. A focused four-lens native review of the guard/test change was approved and acknowledged; this does not retroactively approve earlier application units. Its host/database test-coverage advisory was non-blocking and remains a follow-up, not a claim of exhaustive guard coverage.
+
 ## Browser runtime
 
 A new run explicitly authorized after a cookie-sharing harness failure completed with exit `0` for each synthetic role. `tests/browser_smoke.mjs` creates a separate incognito context for each role; creating a tab alone would reuse login cookies.
@@ -69,12 +77,12 @@ The two Mermaid sources are embedded unchanged in the student report. PNGs were 
 
 ## Code boundaries
 
-| Unit | Commit |
+| Unit | Public source |
 |---|---|
-| Architecture and preservation plan | `e9459ed` |
-| Additive migration | `9fc9735` |
-| Authentication and roles | `4ab3955` |
-| Catalog and loan workflow | `99822ca` |
-| HTTP interface and container setup | `48211b9` |
+| Architecture and preservation plan | `docs/architecture.md` |
+| Additive migration | `src/app/Schema.php`, `bin/migrate.php` |
+| Authentication and roles | `src/app/Auth.php`, `src/app/Session.php` |
+| Catalog and loan workflow | `src/app/LibraryService.php` |
+| HTTP interface and container setup | `src/app/Web.php`, `src/views/`, `Dockerfile` |
 
-Changes were kept on `feature/library-web`. There was no push, PR, merge, release or change to real stored data. Some cohesive units exceed the advisory 400-line target because they include their negative-path tests and documentation; code was not reduced to meet an artificial line count. Large PHP view branches remain a maintainability limitation.
+This public repository starts from a clean application snapshot. Internal task logs and the original local development history are deliberately not published; the source paths above, not private commit identifiers, identify each unit. During the original implementation no production deployment or real-data mutation was performed. No PR, merge or version tag is implied by repository publication. Large PHP view branches remain a maintainability limitation.

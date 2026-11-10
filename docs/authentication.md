@@ -6,7 +6,7 @@
 array{id:int, user_id:int, username:string, role:'reader'|'librarian'|'admin', active:bool}
 ```
 
-Password hashes and plaintext passwords are never returned. A reader may use only the `user_id` in its own current account for a future request/loan controller; staff controllers use `requireRole('librarian', 'admin')`; account administration uses `requireRole('admin')` internally.
+Password hashes and plaintext passwords are never returned. El lector usa únicamente el `user_id` de su cuenta actual para sus solicitudes y préstamos; los controladores de personal usan `requireRole('librarian', 'admin')`; la administración de cuentas usa `requireRole('admin')` internamente.
 
 ## Public API for controllers
 
@@ -17,7 +17,7 @@ Password hashes and plaintext passwords are never returned. A reader may use onl
 - `logout(): void` invalidates the PHP session. Controllers must require a valid CSRF token before calling it from a state-changing request.
 - `createAccount(int $userId, string $username, string $password, string $role): array` requires an authenticated admin, validates an existing legacy `usuarios.id_usuario`, and returns a safe account. It throws `ValidationException` for invalid input or a duplicate username/user link. No existing legacy email is used to select an account.
 - `setAccountActive(int $id, bool $active): void` requires an authenticated admin. It throws `ValidationException` for an invalid target or an attempt to disable the last active admin. It locks relevant account rows transactionally; concurrent deactivate operations serialize so the invariant remains true.
-- `listAccounts(): list<array>` requires an authenticated admin and returns safe account fields only. Future reader UI must not call it.
+- `listAccounts(): list<array>` requiere administrador autenticado y devuelve solo campos seguros; la interfaz actual solo lo expone en la página administrativa.
 
 Usernames are trimmed, lowercased ASCII identifiers (`[a-z0-9][a-z0-9._-]{2,99}`), so provisioning and login use the same identity. Roles are exactly `reader`, `librarian`, and `admin`. Passwords are required to be 12–72 bytes and must contain no NUL byte. The upper bound is intentional because the selected bcrypt implementation silently truncates after 72 bytes. Hashing uses `password_hash(..., PASSWORD_BCRYPT, ['cost' => 12])`; verification uses `password_verify`.
 
@@ -29,11 +29,19 @@ Usernames are trimmed, lowercased ASCII identifiers (`[a-z0-9][a-z0-9._-]{2,99}`
 
 ## First administrator CLI
 
-`php bin/create-admin.php --help` prints the command interface. The only bootstrap forms are:
+`php bin/create-admin.php --help` prints the command interface. Las únicas formas admitidas son `--username` con **uno** de estos grupos: `--user-id`, o `--name` y `--email`. En Bash, lea el secreto de forma enmascarada y páselo por stdin, sin ponerlo en el historial:
 
-```sh
-printf '%s\n' 'a private password' | php bin/create-admin.php --username admin --user-id 12
-printf '%s\n' 'a private password' | php bin/create-admin.php --username admin --name 'Administrator' --email admin@example.test
+```bash
+read -rs -p 'Contraseña inicial: ' ADMIN_PASSWORD; echo
+printf '%s\n' "$ADMIN_PASSWORD" | php bin/create-admin.php --username admin --user-id 12
+unset ADMIN_PASSWORD
 ```
 
-The password is read from standard input only; no password option/default exists. The command is CLI-only, checks that existing `usuarios` and `accounts` tables are present without invoking `Schema::apply`, and refuses when any account already exists. A MySQL named lock serializes competing bootstrap processes. It creates the optional legacy user and admin account in one transaction, or links the supplied existing user without modifying it. After the first account, authenticated administrators provision accounts through `Auth::createAccount`.
+Para crear también el usuario de biblioteca inicial, use ese pipeline **antes de** `unset ADMIN_PASSWORD` en lugar del de `--user-id`:
+
+```bash
+printf '%s\n' "$ADMIN_PASSWORD" | php bin/create-admin.php --username admin --name 'Administrador inicial' --email admin@example.invalid
+unset ADMIN_PASSWORD
+```
+
+La contraseña se lee solo desde entrada estándar; no hay opción ni valor predeterminado de contraseña. Debe tener 12–72 bytes y no contener NUL. El comando es solo CLI, comprueba que existan `usuarios` y `accounts` sin invocar `Schema::apply`, y se niega si ya existe una cuenta. Un bloqueo con nombre de MySQL serializa procesos de bootstrap concurrentes. Crea el usuario heredado opcional y la cuenta administrativa en una transacción, o vincula el usuario existente sin modificarlo. Tras la primera cuenta, los administradores autenticados aprovisionan cuentas con `Auth::createAccount`.

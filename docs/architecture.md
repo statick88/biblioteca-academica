@@ -15,7 +15,7 @@ This is an academic application using PHP 8.2+, mysqli/MySQL 8, server-rendered 
 - `src/views/`: escaped PHP templates, layout/navigation, login, dashboard/catalog, library users, loan requests/history and administration. No direct database access in templates.
 - `src/assets/`: CSS tokens/layout and JS navigation, confirmation and submission feedback. Core forms work without JS.
 
-Public service signatures and result fields must be documented by each backend unit before the dependent UI unit starts. The UI is not an independent parallel writer until those contracts exist. Tests use public methods and HTTP endpoints, not direct application storage assertions.
+Las firmas públicas y campos de resultado del servicio están documentados en [library-service.md](library-service.md) y son el contrato de la interfaz actual. Las pruebas usan métodos públicos y endpoints HTTP, no aserciones directas sobre almacenamiento de la aplicación.
 
 ## Legacy data and additive evolution
 

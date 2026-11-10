@@ -1,59 +1,67 @@
-# Biblioteca académica
+# Biblioteca Académica
 
-Proyecto PHP 8.2 para una biblioteca con catálogo, usuarios, solicitudes, préstamos, devoluciones y control de acceso por roles. Es una aplicación renderizada en servidor: no requiere paquetes, CDN ni registro público.
+Aplicación académica de biblioteca, renderizada en servidor con PHP, para gestionar catálogo, usuarios de biblioteca, solicitudes, préstamos, devoluciones y acceso por roles. Repositorio público: [`statick88/biblioteca-academica`](https://github.com/statick88/biblioteca-academica).
 
-## Configuración
+## Alcance y funciones
 
-Defina `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASSWORD` en el proceso. Use un usuario de base de datos explícitamente limitado a la base de la aplicación; **no** use `root` en producción. El uso de root puede ser una compatibilidad local de desarrollo, nunca una configuración recomendada.
+- Catálogo y búsqueda para cuentas autenticadas.
+- Solicitudes propias de lectores; confirmación y devolución por personal.
+- Administración de libros, usuarios de biblioteca y cuentas según el rol.
+- Migración aditiva por CLI: conserva las tablas y filas históricas.
+- Sin alta pública, cuentas predeterminadas ni migraciones desde HTTP.
 
-Primero revise y aplique la migración aditiva según [docs/migration.md](docs/migration.md). No hay migración, DDL ni datos de demostración desde HTTP. Cree el primer administrador solo con el comando CLI descrito en [docs/authentication.md](docs/authentication.md); no hay cuentas ni contraseñas predeterminadas.
+| Rol | Alcance |
+| --- | --- |
+| Lector | Consulta catálogo y solo sus solicitudes y préstamos. |
+| Bibliotecario | Además gestiona libros/usuarios, confirma solicitudes y registra devoluciones. |
+| Administrador | Además crea, activa y desactiva cuentas. |
 
-Para desarrollo HTTP local use explícitamente `APP_ENV=local` (cookies Secure desactivadas solo para HTTP local):
+## Requisitos
 
-```sh
-APP_ENV=local DB_HOST=127.0.0.1 DB_PORT=3306 DB_NAME=library DB_USER=library_user DB_PASSWORD=replace_with_local_secret php -S 127.0.0.1:8080 -t src src/router.php
-```
+- PHP 8.2+ con `mysqli`, `mbstring` y sesiones.
+- MySQL 8.
+- Servidor web con `src` como document root, o el servidor integrado de PHP para desarrollo local.
+- Docker es opcional. Node y Chrome solo son necesarios para la comprobación de navegador descrita en [docs/testing.md](docs/testing.md).
 
-Abra `http://127.0.0.1:8080/index.php?page=login`. Apache usa el mismo document root (`src`) y bloquea `app`, `views`, `bin` y pruebas. Docker Compose conserva el volumen heredado `mysql_data_final`; no lo reinicia ni borra. Proporcione explícitamente `DB_USER` y `DB_PASSWORD` para el proceso web; Compose falla cerrado si faltan. Conserve `DB_ROOT_PASSWORD`, `DB_NAME`, `WEB_PORT` y `DB_PORT` para compatibilidad de Compose. Cree un usuario de aplicación de mínimos privilegios antes de arrancar; el usuario root de MySQL es solo una compatibilidad de desarrollo, no un valor predeterminado de la aplicación.
+No se requieren paquetes de aplicación de Composer, npm ni framework.
 
-## Roles
+## Ruta rápida segura (instalación vacía)
 
-- **Lector:** catálogo y sus propios préstamos/solicitudes; solicita libros para sí mismo.
-- **Bibliotecario:** además administra libros/usuarios, confirma préstamos y registra devoluciones.
-- **Administrador:** además aprovisiona y activa/desactiva cuentas.
+1. Clone en un directorio nuevo, sin renombrar una instalación existente:
 
-## Verificación
+   ```sh
+   git clone https://github.com/statick88/biblioteca-academica.git biblioteca-academica
+   cd biblioteca-academica
+   ```
 
-El fixture está guardado para `127.0.0.1:32768`, `library_fixture`, usuario `root` y clave sintética. No apunta al volumen de Docker ni a una base real. Prepare un contenedor desechable sin montar `mysql_data_final`:
+2. Siga [la instalación](docs/installation.md): cree por separado el usuario MySQL de ejecución, configure variables de proceso y ejecute el preflight antes de `--apply`.
+3. Cree el primer administrador por stdin según [autenticación](docs/authentication.md).
+4. Para HTTP local, use explícitamente `APP_ENV=local` y abra `http://127.0.0.1:8080/index.php?page=login`.
 
-```sh
-docker run --rm -d --name library-fixture-test \
-  -e MYSQL_ROOT_PASSWORD=library_test_only_01a1c355 \
-  -e MYSQL_DATABASE=library_fixture \
-  -p 127.0.0.1:32768:3306 mysql:8.0 \
-  --default-authentication-plugin=mysql_native_password
-```
+Para una base con datos, no use esa ruta como si fuera una instalación vacía: siga [migración y preservación](docs/migration.md) y confirme primero la copia de seguridad, el preflight y la autorización del operador.
 
-Espere a que MySQL acepte conexiones antes de las pruebas. Si el puerto está ocupado, no apunte los tests a otra base: sus guardas intencionalmente rechazan otros destinos. Detenga únicamente este contenedor de pruebas con `docker stop library-fixture-test` al terminar.
+## Mapa del proyecto
 
-```sh
-export DB_HOST=127.0.0.1 DB_PORT=32768 DB_NAME=library_fixture
-export DB_USER=root DB_PASSWORD=library_test_only_01a1c355
-php tests/migration_test.php
-php tests/auth_test.php
-php tests/library_test.php
-php tests/http_test.php
-php tests/usuario_test.php
-```
+| Área | Referencia |
+| --- | --- |
+| Instalación, variables y Docker opcional | [docs/installation.md](docs/installation.md) |
+| Migración aditiva y datos históricos | [docs/migration.md](docs/migration.md) |
+| Login, sesiones y primer administrador | [docs/authentication.md](docs/authentication.md) |
+| Capas y decisiones | [docs/architecture.md](docs/architecture.md) |
+| Contrato de `LibraryService` | [docs/library-service.md](docs/library-service.md) |
+| Rutas y flujos web | [docs/web-interface.md](docs/web-interface.md) |
+| Pruebas reproducibles | [docs/testing.md](docs/testing.md) |
+| Evidencia histórica y límites aceptados | [docs/verification.md](docs/verification.md) |
+| UML conceptual y clases PHP reales | [entrega/taller-1.3/README.md](entrega/taller-1.3/README.md) |
 
-La última prueba conserva el resultado de registro de usuario del monolito anterior en el límite HTTP público, en lugar de extraer clases desde `index.php`. Más detalles de rutas, accesibilidad y contratos están en [docs/web-interface.md](docs/web-interface.md).
+`Libro`, `Usuario` y `Prestamo` son entidades conceptuales del UML; no son clases PHP individuales. Las operaciones actuales están en `Library\LibraryService`; los diagramas actuales ya están en `entrega/taller-1.3` y no se regeneran desde esta guía.
 
-## Arquitectura y entrega
+## Estado de publicación y verificación
 
-- [Arquitectura y decisiones](docs/architecture.md).
-- [Migración aditiva y preflight](docs/migration.md).
-- [Acceso y creación del primer administrador](docs/authentication.md).
-- [Informe UML y diagramas actualizados](entrega/taller-1.3/README.md).
-- [Pruebas observadas y límites de verificación](docs/verification.md).
+El repositorio se publica como proyecto académico, sin despliegue de la aplicación. No es una certificación de producción, versión liberada ni garantía de endurecimiento. La migración no se ejecutó sobre datos de aula reales. La evidencia disponible, las comprobaciones que no tuvieron dictamen independiente y sus límites aceptados están preservados en [docs/verification.md](docs/verification.md); no se sustituyen por una afirmación de cobertura o aprobación.
 
-La interfaz es funcional, no una certificación para producción. No se aplicó la migración sobre los datos originales. El dictamen independiente HTTP y la evaluación nativa no estuvieron disponibles; sus límites y las decisiones del usuario quedan documentados, sin presentarlos como aprobaciones.
+## Participar y reportar riesgos
+
+- [CONTRIBUTING.md](CONTRIBUTING.md): cambios y comprobaciones locales.
+- [SECURITY.md](SECURITY.md): reporte responsable y límites académicos.
+- [CHANGELOG.md](CHANGELOG.md): cambios documentados sin inventar versiones o etiquetas.

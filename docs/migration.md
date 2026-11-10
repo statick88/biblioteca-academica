@@ -28,7 +28,7 @@ The original legacy definition is fixed rather than inferred: `libros` has `titu
 
 ## Additive schema contract
 
-The new tables intentionally have no foreign keys into legacy data: legacy rows may contain null or orphaned references and must remain untouched. Future service code validates references inside its transaction.
+The new tables intentionally have no foreign keys into legacy data: legacy rows may contain null or orphaned references and must remain untouched. `LibraryService` valida las referencias dentro de sus transacciones.
 
 ### `accounts`
 
@@ -56,6 +56,6 @@ No existing library user gains an account automatically.
 
 Authentication throttling consumes `identifier_hash`, `ip_hash`, `window_started_at`, `attempt_count`, and `updated_at`. Hashes, rather than raw usernames or IP addresses, minimize sensitive data. The unique tuple `(identifier_hash, ip_hash, window_started_at)` supports atomic counter updates per rate-limit window.
 
-## Next Auth unit
+## Integración actual de autenticación y préstamos
 
-Auth may provision accounts and write `auth_attempts`, but must use prepared statements, password hashing, generic failures, and server-side active/role checks. It must not infer login identity from a legacy email or mutate legacy data. Loan workflow code must serialize confirmation/returns on the legacy book row and treat `loan_returns` as the return marker.
+`Auth` aprovisiona cuentas y escribe `auth_attempts` mediante consultas preparadas, hash de contraseñas, fallos genéricos y comprobaciones de cuenta activa/rol en el servidor. No infiere la identidad de inicio de sesión desde el correo heredado ni modifica datos heredados. El flujo de préstamos serializa confirmaciones y devoluciones sobre la fila de libro heredada y usa `loan_returns` como marcador de retorno.
