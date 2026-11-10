@@ -7,8 +7,10 @@ const FIXTURE_DATABASE = 'library_fixture';
 
 function fixtureConnection(): mysqli
 {
-    if (getenv('DB_NAME') !== FIXTURE_DATABASE || getenv('DB_HOST') !== '127.0.0.1') {
-        fail('Refusing destructive fixture setup outside the isolated library_fixture database on 127.0.0.1.');
+    if (getenv('DB_NAME') !== FIXTURE_DATABASE
+        || getenv('DB_HOST') !== '127.0.0.1'
+        || getenv('DB_PORT') !== '32768') {
+        fail('Refusing destructive fixture setup outside 127.0.0.1:32768/library_fixture.');
     }
 
     return Database::connect();
