@@ -1,0 +1,26 @@
+# Library Web
+Objective: evolve the classroom demo into a maintainable library application. Branch: feature/library-web; delivery strategy: auto-chain (feature-branch-chain), no publishing authorized.
+Verification: native PHP CLI tests, isolated MySQL integration and browser checks; runners to confirm during exploration.
+
+## Specs
+S1. User request: “ahora modifica html, css, js y php como un proyecto de un estudiante de ultimos ciclos de Ingenieria de software aplicando todos los conceptos necesarios de back, front, ui/ux y un experto en arquitectura de software y desarrollo web”. Check: separated responsibilities and documented architecture; usable frontend and backend.
+S2. Accepted option 1: “Interfaz y organización: mejorar diseño responsive, accesibilidad y estructura del código, conservando las funciones actuales.” Check: responsive, accessible interfaces and preserved registration capabilities.
+S3. Accepted option 2: “Biblioteca funcional — recomendado: gestionar libros y usuarios, registrar préstamos y devoluciones, buscar, validar datos y mostrar disponibilidad; arquitectura por capas y pruebas.” Check: public functional tests for each capability and negative input paths.
+S4. Accepted option 3: “Sistema con acceso por roles: todo lo anterior más inicio de sesión y permisos para administrador, bibliotecario y usuario.” Check: authentication and server-side role/ownership enforcement, denied operations leave data unchanged.
+S5. Data decision: “Conservar e integrar los datos actuales”. Check: additive migration, read-only preflight, preservation of existing identifiers and rows; no destructive action on actual data without explicit authorization.
+S6. Reader workflow: “Solicitar; bibliotecario confirma — recomendado”. Accepted explanation: “El lector solicita; bibliotecario o administrador registra la entrega y la devolución.” Check: readers can request but cannot confirm or return loans; staff can confirm and record returns.
+
+## Tasks
+T1 | S1,S5,S6 | route: delegated read-only map + parent architecture | done | commit: pending | docs/architecture.md defines additive schema, explicit role matrix, book-row locking, isolated fixtures and frontend/backend boundaries; PHP/Docker/Chrome availability checked.
+T2 | S4,S5 | route: delegated foundation writer (context backstop) | in_progress | commit: pending | persistence foundation, additive migration, authentication, session and role boundaries with tests.
+T3 | S3,S5,S6 | route: delegated after T2 contract | pending | commit: pending | catalog/user management and request/confirm/return workflows with transactional tests.
+T4 | S1,S2,S3,S4,S6 | route: delegated after T3 contract | pending | commit: pending | responsive accessible HTML/PHP views, CSS and progressive JavaScript integrated with backend.
+T5 | S1,S2,S3,S4,S5,S6 | route: independent verifier for high-risk migration/security/concurrency | pending | commit: pending | functional integration, browser verification, UML/docs and native candidate assessment/review when due.
+
+## Log
+L1. Original request verbatim: “ahora modifica html, css, js y php como un proyecto de un estudiante de ultimos ciclos de Ingenieria de software aplicando todos los conceptos necesarios de back, front, ui/ux y un experto en arquitectura de software y desarrollo web”.
+L2. User approved all three scope options: “1. ok, 2. ok, 3. ok”. Product decisions: “Conservar e integrar los datos actuales”; “Solicitar; bibliotecario confirma — recomendado”.
+L3. Current code has one PHP script, mysqli persistence, three legacy tables, no auth or forms, nullable loan FKs and sample inserts on every page load. Docker uses PHP 8.2 Apache and MySQL 8.0. Real database remains untouched. Existing credentials in source must not be committed into the new baseline.
+L4. Earlier directory had no Git; current bounded check finds an unborn master .git with every project file untracked and no commits. Do not assume an existing baseline or commit .env. Runtime PHP includes mysqli, PDO MySQL/SQLite and sessions; Docker server and local mysql/mysqld executables are available. Exact isolated runners still to establish. Browser MCP discovery found REA target tooling, not a full browser test facility.
+L5. Read-only explorer task mwa3k3je-2-04w7 is mapping legacy data hazards and implementation/test surfaces. No new application source has been written for this feature. Known high-risk items: data migration (1), authentication/permissions (2), public interface evolution (3), loan consistency (4). Forecast exceeds 400 authored lines; delivery shape still requires user selection before work-unit commits. No push, PR, merge or actual data migration authorized by this document.
+L6. Delivery selection: “Cadena sobre rama de funcionalidad — recomendado”. Use local feature-branch-chain units with independent high-risk commits. A Google Chrome executable and cached mysql:8.0 Docker image are present. Exploration agent returned no usable map (only a completion statement), so no findings from it are asserted; parent grounded the architecture in previously read source. Initial Git baseline intentionally includes only tracking/architecture/.gitignore: legacy source contains credentials and must not be committed in its original form. Docs/architecture.md is the implementation contract and decision rationale.
