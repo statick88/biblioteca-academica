@@ -1,0 +1,51 @@
+%% Modelo conceptual y relacional; no declara clases PHP inexistentes.
+%% Las participaciones obligatorias son reglas del dominio.
+%% Las FK heredadas permiten NULL; las tablas nuevas se validan en servicios.
+classDiagram
+    class Libro {
+        +int id_libro
+        +string titulo
+        +string autor
+        +bool disponible
+    }
+    class Usuario {
+        +int id_usuario
+        +string nombre
+        +string correo
+    }
+    class Prestamo {
+        +int id_prestamo
+        +int id_libro
+        +int id_usuario
+        +date fecha_salida
+    }
+    class Cuenta {
+        +int id
+        +int user_id
+        +string username
+        +string password_hash
+        +string role
+        +bool active
+    }
+    class Solicitud {
+        +int id
+        +int user_id
+        +int book_id
+        +string status
+        +int loan_id
+        +datetime requested_at
+        +datetime confirmed_at
+        +int confirmed_by_account_id
+    }
+    class Devolucion {
+        +int loan_id
+        +datetime returned_at
+        +int returned_by_account_id
+    }
+    Libro "1" -- "0..*" Prestamo : registra
+    Usuario "1" -- "0..*" Prestamo : recibe
+    Usuario "1" -- "0..1" Cuenta : accede mediante
+    Usuario "1" -- "0..*" Solicitud : solicita
+    Libro "1" -- "0..*" Solicitud : corresponde a
+    Solicitud "0..1" -- "0..1" Prestamo : se confirma como
+    Prestamo "1" -- "0..1" Devolucion : se cierra con

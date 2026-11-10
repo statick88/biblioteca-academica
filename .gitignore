@@ -1,0 +1,9 @@
+.env
+.env.*
+!.env.example
+/runtime/
+/tests/runtime/
+/tests/artifacts/
+/odd/
+*.log
+.DS_Store
