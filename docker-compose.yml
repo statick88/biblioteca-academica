@@ -1,0 +1,38 @@
+services:
+  web:
+    build: .
+    container_name: mi_servidor_web
+    ports:
+      - "${WEB_PORT}:80"
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT_INTERNAL:-3306}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER:?Defina DB_USER para el proceso web}
+      DB_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD para el proceso web}
+    volumes:
+      - ./:/var/www/library:ro
+    networks:
+      - mi_red_local
+
+  db:
+    image: mysql:8.0
+    container_name: mi_base_datos_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${DB_NAME}"
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - mysql_data_final:/var/lib/mysql
+    networks:
+      - mi_red_local
+
+networks:
+  mi_red_local:
+    driver: bridge
+
+volumes:
+  mysql_data_final:
