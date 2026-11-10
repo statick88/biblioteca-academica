@@ -6,7 +6,7 @@ This is an academic application using PHP 8.2+, mysqli/MySQL 8, server-rendered 
 
 ## Layers and contracts
 
-- `src/app/bootstrap.php`: autoload `Library\` classes from `src/app/`, environment configuration, sessions and response headers. Configuration uses `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`; no credentials in source.
+- `src/app/bootstrap.php`: autoload `Library\` classes from `src/app/`. `Database` reads environment configuration; `Session` controls sessions and `Web` emits response headers. Configuration uses `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`; no credentials in source.
 - `src/app/Database.php`: shared connection factory `Database::connect(): mysqli`; strict mysqli errors and utf8mb4. CLI configuration comes from process environment, not an implicit .env parser.
 - `src/app/Schema.php`: additive migration and read-only preflight, runnable only through CLI. HTTP GET never creates tables or sample data.
 - `src/app/Auth.php`: session authentication and server-side role and ownership policy, CSRF, password hashing, generic login failures and shared database-backed login throttling.

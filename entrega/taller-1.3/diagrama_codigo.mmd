@@ -1,0 +1,69 @@
+%% Clases PHP reales de src/app; el front controller es procedural.
+classDiagram
+    class Database {
+        +connect() mysqli
+    }
+    class Schema {
+        -mysqli database
+        +preflight() array
+        +apply() array
+    }
+    class Session {
+        -int timeoutSeconds
+        -bool secureCookies
+        +begin() void
+        +login(accountId) void
+        +accountId() int
+        +csrfToken() string
+        +verifyCsrf(submitted) bool
+        +logout() void
+    }
+    class Auth {
+        -mysqli database
+        -Session session
+        +login(username, password, ip) array
+        +currentAccount() array
+        +requireAccount() array
+        +requireRole(roles) array
+        +createAccount(userId, username, password, role) array
+        +setAccountActive(id, active) void
+        +listAccounts() array
+        +logout() void
+    }
+    class LibraryService {
+        -mysqli database
+        -Auth auth
+        +listBooks(search) array
+        +createBook(title, author) array
+        +updateBook(id, title, author) array
+        +listUsers(search) array
+        +createUser(name, email) array
+        +updateUser(id, name, email) array
+        +requestBook(bookId) array
+        +listRequests() array
+        +confirmRequest(requestId) array
+        +listLoans() array
+        +returnLoan(loanId) void
+        +dashboard() array
+    }
+    class Web {
+        -Session session
+        +headers(authPage) void
+        +csrf() string
+        +csrfOrFail()
+        +string(name, max, required) string
+        +id(name) int
+        +query(name, max) string
+        +redirect(page, message)
+        +escape(value) string
+    }
+    class mysqli {
+        <<external>>
+    }
+    Schema --> mysqli : recibe
+    Auth --> mysqli : recibe
+    Auth --> Session : recibe
+    LibraryService --> mysqli : recibe
+    LibraryService --> Auth : autoriza mediante
+    Web --> Session : valida CSRF mediante
+    Database ..> mysqli : crea
