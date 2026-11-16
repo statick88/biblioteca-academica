@@ -64,3 +64,28 @@ docker-compose up -d --build
 Compose usa `DB_PORT` para el puerto host de MySQL y `DB_PORT_INTERNAL` (por defecto `3306`) para la conexión `web` → `db`; `WEB_PORT` publica Apache. `DB_ROOT_PASSWORD` es para inicialización/operación de MySQL, no para el proceso web. `DB_USER` y `DB_PASSWORD` del proceso web son obligatorios.
 
 No ejecute `docker compose down -v` ni su equivalente: el archivo declara `mysql_data_final`. Cambiar únicamente el nombre remoto no altera los volúmenes. En una instalación existente, mover/renombrar la carpeta local o usar un clon nuevo sí puede cambiar el nombre de proyecto y el prefijo de volumen predeterminados. Antes de operar Compose, inspeccione etiquetas/metadatos del volumen y la configuración existente para conservar su nombre de proyecto establecido (`COMPOSE_PROJECT_NAME` o `-p`). No se debe asumir un identificador de proyecto, nombre de volumen real ni renombrar contenedores de producción para que coincidan con el repositorio.
+
+### Comandos rápidos de operación
+
+```sh
+docker-compose up -d          # levantar (o reconstruir con --build)
+docker-compose config         # validar el archivo Compose
+docker-compose build          # reconstruir solo la imagen
+docker-compose ps             # estado de los servicios
+docker-compose logs -f web    # logs de Apache/PHP (servicio web)
+```
+
+Comprobación de estado **solo lectura** contra la base (no escribe datos). Los nombres de contenedor y base son ejemplos de un entorno local; confirme los de su Compose antes de ejecutarlo. `MYSQL_PWD` evita pasar la contraseña como argumento de `mysql`:
+
+```sh
+docker exec mi_base_datos_mysql sh -c \
+  'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot sistema_biblioteca_db -e "SELECT id,username,role,active FROM accounts;"'
+```
+
+El login por HTTP y los usuarios de prueba están documentados en [autenticación](authentication.md); la suite completa de pruebas en [pruebas](testing.md).
+
+### Reenvío de puertos desde VS Code
+
+Para compartir temporalmente la app desde un entorno que admita reenvío de puertos, abra la vista **Ports** de VS Code (`Ports: Focus on Ports View`) y use **Forward a Port** para `8080` (el `WEB_PORT` de Apache). Comparta la URL que muestre esa vista y mantenga la visibilidad en **Private** como opción recomendada. La detección automática del puerto, el tipo de autenticación y la disponibilidad de enlaces públicos dependen del entorno remoto y del proveedor de túnel; no todos admiten publicación pública.
+
+No reenvíe el puerto de MySQL (`DB_PORT`): expondría la base y sus credenciales de inicialización. La visibilidad pública no es apta para entornos con datos reales.

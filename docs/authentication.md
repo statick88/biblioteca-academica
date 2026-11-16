@@ -45,3 +45,19 @@ unset ADMIN_PASSWORD
 ```
 
 La contraseña se lee solo desde entrada estándar; no hay opción ni valor predeterminado de contraseña. Debe tener 12–72 bytes y no contener NUL. El comando es solo CLI, comprueba que existan `usuarios` y `accounts` sin invocar `Schema::apply`, y se niega si ya existe una cuenta. Un bloqueo con nombre de MySQL serializa procesos de bootstrap concurrentes. Crea el usuario heredado opcional y la cuenta administrativa en una transacción, o vincula el usuario existente sin modificarlo. Tras la primera cuenta, los administradores autenticados aprovisionan cuentas con `Auth::createAccount`.
+
+## Usuarios de prueba (entorno local)
+
+En el entorno local verificado se aprovisionaron tres cuentas de prueba: el primer administrador mediante la CLI y los dos lectores por la ruta HTTP de la aplicación. No son cuentas predeterminadas ni se instalan con la aplicación:
+
+| Username | Rol |
+| --- | --- |
+| `admin_pruebas` | `admin` |
+| `lector_pruebas` | `reader` |
+| `lector_dos_pruebas` | `reader` |
+
+Para iniciar sesión localmente, abra `http://localhost:8080/index.php?page=login` en el navegador y use una de esas cuentas con la contraseña correspondiente de `runtime/test-users.credentials`. Ese archivo local, ignorado por Git y con modo `600`, no debe compartirse ni copiarse en documentación, comandos o capturas.
+
+Use `APP_ENV=local` únicamente para HTTP local. En producción con HTTPS, mantenga la configuración de producción para conservar las cookies `Secure`.
+
+Se realizaron 34 comprobaciones HTTP contra ese entorno local; son evidencia local y no una garantía reproducible para otras instalaciones. No se ejecutó una comprobación de navegador.
